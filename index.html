@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MathNova</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body style="font-family:Arial; text-align:center; background:#0f2027; color:white; padding:40px;">
+
+<h1>🚀 MathNova</h1>
+<p>Grade 8 Math Practice</p>
+
+<h2>Square Root Question</h2>
+<p>√64 = ?</p>
+
+<input id="answer" placeholder="Enter answer">
+<br><br>
+
+<button onclick="check()">Submit</button>
+
+<p id="result"></p>
+
+<script>
+function check(){
+let ans = document.getElementById("answer").value;
+if(ans == "8"){
+document.getElementById("result").innerHTML = "✅ Correct!";
+}else{
+document.getElementById("result").innerHTML = "❌ Wrong. Formula: 8 × 8 = 64";
+}
+}
+</script>
+
+</body>
+</html>
