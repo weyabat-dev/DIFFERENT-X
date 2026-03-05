@@ -1,0 +1,207 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DIFFERENT X – Ethiopian Grade 8 Math Master</title>
+<style>
+body{font-family:Arial;margin:0;background:linear-gradient(135deg,#141e30,#243b55);display:flex;justify-content:center;align-items:center;height:100vh}
+.container{background:white;width:95%;max-width:720px;padding:25px;border-radius:16px;box-shadow:0 20px 50px rgba(0,0,0,.4);text-align:center}
+h2{margin:5px 0}
+input,select{width:100%;padding:10px;margin:8px 0;border-radius:8px;border:1px solid #ccc}
+button{padding:10px 15px;border:none;border-radius:8px;cursor:pointer;margin:5px}
+.primary{background:#007bff;color:white}
+.success{background:#28a745;color:white}
+.dark{background:#222;color:white}
+.hidden{display:none}
+.scoreboard{display:flex;justify-content:space-between;font-weight:bold;margin-bottom:10px}
+.progress{background:#ddd;border-radius:10px;height:14px;margin-top:10px}
+.bar{height:14px;background:#28a745;border-radius:10px;width:0%}
+.leaderboard{background:#eef;padding:10px;border-radius:8px;margin-top:10px;text-align:left}
+.badge{background:#ffd700;padding:6px 10px;border-radius:8px;margin:4px;display:inline-block}
+</style>
+</head>
+<body><div class="container"><h2>🇪🇹 DIFFERENT X</h2>
+<p>Grade 8 Ethiopian Math Game</p><div id="startScreen">
+<input id="studentName" placeholder="Enter your name">
+<select id="topic">
+<option value="sqrt">Square Roots</option>
+<option value="pythagoras">Pythagorean Theorem</option>
+<option value="triangle">Triangle Angles</option>
+<option value="algebra">Algebra</option>
+<option value="area">Area of Triangle</option>
+</select>
+<button class="primary" onclick="startGame()">Start Quiz</button>
+</div><div id="quizScreen" class="hidden">
+<div class="scoreboard">
+<span id="score">Score:0</span>
+<span id="xp">XP:0</span>
+</div><div class="progress"><div id="xpbar" class="bar"></div></div><h3 id="question"></h3>
+<input id="answer" placeholder="Your answer">
+<button class="primary" onclick="checkAnswer()">Submit</button><p id="result"></p>
+<button class="dark" onclick="nextQuestion()">Next</button>
+</div><div id="endScreen" class="hidden">
+<h3 id="final"></h3>
+<button class="success" onclick="downloadCertificate()">Download Certificate</button>
+<div id="achievements"></div>
+<div class="leaderboard" id="leaderboard"></div>
+<button class="primary" onclick="restart()">Play Again</button>
+</div></div><script>
+let student="";
+let score=0;
+let xp=0;
+let level=1;
+let questionObj={};
+let topic="";
+
+function random(min,max){return Math.floor(Math.random()*(max-min+1))+min}
+
+// GENERATORS — allow unlimited questions (20k+ easily)
+
+function genSqrt(){
+let n=random(2,50)
+return{q:`√${n*n} = ?`,a:String(n)}
+}
+
+function genPythagoras(){
+let a=random(3,20)
+let b=random(4,20)
+let c=Math.sqrt(a*a+b*b)
+if(Number.isInteger(c)){
+return{q:`Right triangle sides ${a} and ${b}. Find hypotenuse`,a:String(c)}
+}
+return genPythagoras()
+}
+
+function genTriangle(){
+let a=random(20,100)
+let b=random(20,100)
+let x=180-a-b
+if(x>0){
+return{q:`Triangle angles ${a}° and ${b}°. Find third angle`,a:String(x)}
+}
+return genTriangle()
+}
+
+function genAlgebra(){
+let x=random(2,20)
+let a=random(2,10)
+let b=a*x
+return{q:`Solve: ${a}x = ${b}`,a:String(x)}
+}
+
+function genArea(){
+let b=random(4,30)
+let h=random(4,20)
+return{q:`Triangle area if base=${b} height=${h}`,a:String((b*h)/2)}
+}
+
+function generateQuestion(){
+if(topic=="sqrt")return genSqrt()
+if(topic=="pythagoras")return genPythagoras()
+if(topic=="triangle")return genTriangle()
+if(topic=="algebra")return genAlgebra()
+if(topic=="area")return genArea()
+}
+
+function startGame(){
+student=document.getElementById("studentName").value
+if(student==""){alert("Enter name");return}
+
+topic=document.getElementById("topic").value
+
+document.getElementById("startScreen").classList.add("hidden")
+document.getElementById("quizScreen").classList.remove("hidden")
+
+loadQuestion()
+}
+
+function loadQuestion(){
+questionObj=generateQuestion()
+document.getElementById("question").innerText=questionObj.q
+}
+
+function checkAnswer(){
+let user=document.getElementById("answer").value
+
+if(user==questionObj.a){
+score+=10
+xp+=5
+
+if(xp>=100){
+level++
+xp=0
+alert("LEVEL UP! Level "+level)
+}
+
+updateBar()
+
+document.getElementById("result").innerText="Correct!"
+}
+else{
+document.getElementById("result").innerText="Wrong. Answer: "+questionObj.a
+}
+
+document.getElementById("score").innerText="Score:"+score
+
+document.getElementById("xp").innerText="XP:"+xp
+}
+
+function nextQuestion(){
+loadQuestion()
+document.getElementById("answer").value=""
+document.getElementById("result").innerText=""
+}
+
+function updateBar(){
+let percent=(xp/100)*100
+
+document.getElementById("xpbar").style.width=percent+"%"
+}
+
+function endGame(){
+document.getElementById("quizScreen").classList.add("hidden")
+document.getElementById("endScreen").classList.remove("hidden")
+
+saveScore()
+showLeaderboard()
+
+let badge=""
+if(score>200)badge="🏆 Math Champion"
+else if(score>100)badge="⭐ Math Expert"
+else badge="👍 Beginner"
+
+document.getElementById("achievements").innerHTML="<div class='badge'>"+badge+"</div>"
+}
+
+function saveScore(){
+let scores=JSON.parse(localStorage.getItem("mathScores")||"[]")
+scores.push({name:student,score:score})
+localStorage.setItem("mathScores",JSON.stringify(scores))
+}
+
+function showLeaderboard(){
+let scores=JSON.parse(localStorage.getItem("mathScores")||"[]")
+scores.sort((a,b)=>b.score-a.score)
+
+let html="<h3>Global Leaderboard</h3>"
+
+scores.slice(0,10).forEach(s=>{
+html+=s.name+" - "+s.score+"<br>"
+})
+
+document.getElementById("leaderboard").innerHTML=html
+}
+
+function downloadCertificate(){
+let text="Certificate of Achievement\n\n"+student+" scored "+score+" points in DIFFERENT X Grade 8 Math"
+let blob=new Blob([text],{type:"text/plain"})
+let link=document.createElement("a")
+link.href=URL.createObjectURL(blob)
+link.download="certificate.txt"
+link.click()
+}
+
+function restart(){location.reload()}
+
+</script></body>
+</html>
