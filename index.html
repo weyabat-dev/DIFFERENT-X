@@ -1,0 +1,827 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maths Nova Universe V60000</title>
+<style>
+body{margin:0;font-family:Arial;background:#020617;color:white;text-align:center}
+header{padding:12px;font-size:26px;background:#020617;box-shadow:0 0 10px black}
+#stats{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;padding:10px}
+.stat{background:#111827;padding:8px 14px;border-radius:10px}
+#map{display:grid;grid-template-columns:repeat(16,28px);gap:2px;justify-content:center;margin-top:15px}
+.tile{width:28px;height:28px;border-radius:5px;font-size:10px;display:flex;align-items:center;justify-content:center}
+.grass{background:#14532d}
+.water{background:#1e40af}
+.cave{background:#374151}
+.temple{background:#78350f}
+.ore{background:#6b21a8}
+.monster{background:#dc2626}
+.cow{background:#a3e635}
+.base{background:#0ea5e9}
+.player{background:#22c55e}
+button{padding:8px 14px;border:none;border-radius:8px;background:#6366f1;color:white;margin:4px}
+input{padding:10px;border-radius:8px;border:none;width:120px;text-align:center}
+#messages{height:90px;background:black;overflow:auto;margin:6px;border-radius:8px;padding:6px}
+footer{margin-top:20px;color:#9ca3af;font-size:12px}
+</style>
+</head>
+<body>
+<header>🌌 Maths Nova Infinite Universe</header>
+<div id="stats">
+<div class="stat">Level <span id="level">1</span></div>
+<div class="stat">Coins <span id="coins">0</span></div>
+<div class="stat">Energy <span id="energy">100</span></div>
+<div class="stat">Planet <span id="planet">Earth</span></div>
+<div class="stat">Armor <span id="armor">None</span></div>
+</div>
+<div id="map"></div>
+<div>
+<h3 id="question">Explore the world</h3>
+<input id="answer" placeholder="answer">
+<button onclick="submitAnswer()">Submit</button>
+</div><h3>🍎 Foods</h3>
+<button onclick="eatFood()">Eat Food</button><h3>⛏ Crafting</h3>
+<button onclick="craftArmor()">Craft Armor</button>
+<button onclick="buildBase()">Build Base</button>
+<button onclick="buildMecha()">Build Mecha</button><h3>🚗 Vehicles</h3>
+<button onclick="useVehicle('Car')">Car</button>
+<button onclick="useVehicle('Boat')">Boat</button>
+<button onclick="useVehicle('Helicopter')">Helicopter</button>
+<button onclick="useVehicle('Jet')">Jet</button>
+<button onclick="useVehicle('Submarine')">Submarine</button>
+<button onclick="useVehicle('Spacecraft')">Spacecraft</button><h3>💬 Chat</h3>
+<div id="messages"></div>
+<input id="msg" placeholder="message">
+<button onclick="sendMsg()">Send</button><footer>Move with W A S D • Mine ores • Craft armor • Build bases • Use mechas</footer><script>
+
+const size=16
+const map=[]
+
+let player={x:8,y:8,level:1,coins:0,energy:100,armor:"None",ores:0,food:5,mechas:0}
+
+let planet="Earth"
+let currentAnswer=0
+
+const foods=["Apple","Bread","Pizza","Burger","Steak","Energy Drink","Galaxy Fruit","Nano Soup","Space Ration","Golden Apple"]
+
+function randomInt(max){return Math.floor(Math.random()*max)}
+
+function generateMap(){
+map.length=0
+for(let y=0;y<size;y++){
+for(let x=0;x<size;x++){
+let type="grass"
+let r=Math.random()
+if(r<0.07)type="water"
+else if(r<0.12)type="cave"
+else if(r<0.15)type="temple"
+else if(r<0.22)type="ore"
+else if(r<0.28)type="monster"
+else if(r<0.33)type="cow"
+map.push({x,y,type})
+}
+}
+}
+
+function drawMap(){
+const m=document.getElementById("map")
+m.innerHTML=""
+map.forEach(t=>{
+let d=document.createElement("div")
+d.className="tile "+t.type
+if(player.x===t.x && player.y===t.y){
+d.className="tile player"
+d.innerText="P"
+}
+m.appendChild(d)
+})
+}
+
+function move(dx,dy){
+player.x=Math.max(0,Math.min(size-1,player.x+dx))
+player.y=Math.max(0,Math.min(size-1,player.y+dy))
+player.energy--
+checkTile()
+updateUI()
+drawMap()
+}
+
+function checkTile(){
+let tile=map.find(t=>t.x===player.x && t.y===player.y)
+
+if(tile.type==="monster")spawnMonster()
+
+if(tile.type==="ore"){
+player.ores++
+alert("You mined mathematical ore")
+}
+
+if(tile.type==="temple"){
+alert("Ancient temple with a boss inside")
+}
+
+if(tile.type==="cave"){
+alert("Dungeon cave discovered with monsters")
+}
+
+if(tile.type==="cow"){
+player.food++
+}
+}
+
+function spawnMonster(){
+let a=randomInt(40)
+let b=randomInt(40)
+currentAnswer=a*b
+question.innerText=`Monster asks: ${a} × ${b}`
+}
+
+function submitAnswer(){
+let user=Number(answer.value)
+
+if(user===currentAnswer){
+let damage=1
+
+if(player.mechas>0)damage=3
+
+player.level+=damage
+player.coins+=20
+
+alert("Monster defeated")
+}else{
+
+if(player.armor!="None"){
+player.energy-=5
+}else{
+player.energy-=20
+}
+
+alert("Wrong answer monster attacked")
+}
+
+answer.value=""
+updateUI()
+}
+
+function eatFood(){
+
+if(player.food<=0){
+alert("No food")
+return
+}
+
+let f=foods[randomInt(foods.length)]
+player.food--
+player.energy+=20
+alert("You ate "+f)
+updateUI()
+
+}
+
+function craftArmor(){
+
+if(player.ores<5){
+alert("Need 5 math ores")
+return
+}
+
+player.ores-=5
+player.armor="Math Armor"
+alert("You crafted armor")
+updateUI()
+
+}
+
+function buildBase(){
+
+let tile=map.find(t=>t.x===player.x && t.y===player.y)
+
+tile.type="base"
+alert("Base built. You can expand it into a city.")
+
+drawMap()
+
+}
+
+function buildMecha(){
+
+if(player.ores<10){
+alert("Need 10 ores to build a mecha")
+return
+}
+
+player.ores-=10
+player.mechas++
+
+alert("Mecha built. Use it to defeat bosses.")
+
+}
+
+function useVehicle(v){
+
+if(v==="Spacecraft"){
+planet="New Planet " + randomInt(100)
+alert("Traveling to another planet")
+}
+
+}
+
+function updateUI(){
+level.innerText=player.level
+coins.innerText=player.coins
+energy.innerText=player.energy
+planet.innerText=planet
+armor.innerText=player.armor
+}
+
+function sendMsg(){
+let box=document.getElementById("messages")
+let msg=document.getElementById("msg").value
+if(!msg)return
+box.innerHTML+="Player: "+msg+"<br>"
+box.scrollTop=box.scrollHeight
+msg.value=""
+}
+
+window.addEventListener("keydown",e=>{
+if(e.key==="w")move(0,-1)
+if(e.key==="s")move(0,1)
+if(e.key==="a")move(-1,0)
+if(e.key==="d")move(1,0)
+})
+
+generateMap()
+drawMap()
+updateUI()
+
+// ===============================
+// GLOBAL ITEM / BLOCK DATABASE
+// ===============================
+
+const blocks = [
+"stone","deepstone","math_brick","temple_block","crystal_block","iron_block","gold_block","quantum_block",
+"lab_wall","lab_floor","academy_tile","ancient_city_block","energy_conduit","server_block"
+]
+
+const ores = [
+"coal_ore","iron_ore","gold_ore","diamond_ore","aqua_crystal_ore","trident_ore","infinity_pearl_ore","logic_crystal_ore"
+]
+
+const electricItems = [
+"battery","wire","energy_cell","solar_panel","quantum_generator","logic_computer","server_rack","lab_terminal",
+"drone_station","radar","teleporter","shield_core"
+]
+
+const weapons = [
+"ruler_blade","calculator_gun","geometry_staff","matrix_launcher","prime_sword"
+]
+
+const armors = [
+"iron_armor","crystal_armor","quantum_armor","deepsea_armor","dragon_scale_armor"
+]
+
+// ===============================
+// BLUEPRINT / CRAFTING SYSTEM
+// ===============================
+
+const blueprints = {
+
+"battery":{
+ materials:{"iron_ore":2,"coal_ore":1},
+ result:"battery"
+},
+
+"wire":{
+ materials:{"iron_ore":1},
+ result:"wire"
+},
+
+"energy_cell":{
+ materials:{"battery":2,"crystal_block":1},
+ result:"energy_cell"
+},
+
+"solar_panel":{
+ materials:{"crystal_block":2,"iron_block":1,"wire":2},
+ result:"solar_panel"
+},
+
+"quantum_generator":{
+ materials:{"energy_cell":3,"quantum_block":2,"wire":3},
+ result:"quantum_generator"
+},
+
+"logic_computer":{
+ materials:{"wire":3,"energy_cell":1,"crystal_block":1},
+ result:"logic_computer"
+},
+
+"server_rack":{
+ materials:{"logic_computer":2,"iron_block":2},
+ result:"server_rack"
+},
+
+"teleporter":{
+ materials:{"quantum_block":3,"energy_cell":2,"wire":4},
+ result:"teleporter"
+},
+
+"shield_core":{
+ materials:{"quantum_block":2,"energy_cell":2,"crystal_block":2},
+ result:"shield_core"
+},
+
+"ruler_blade":{
+ materials:{"iron_block":2,"crystal_block":1},
+ result:"ruler_blade"
+},
+
+"calculator_gun":{
+ materials:{"logic_computer":1,"iron_block":1,"energy_cell":1},
+ result:"calculator_gun"
+},
+
+"prime_sword":{
+ materials:{"gold_block":2,"crystal_block":2},
+ result:"prime_sword"
+},
+
+"iron_armor":{
+ materials:{"iron_block":5},
+ result:"iron_armor"
+},
+
+"crystal_armor":{
+ materials:{"crystal_block":5},
+ result:"crystal_armor"
+},
+
+"quantum_armor":{
+ materials:{"quantum_block":4,"energy_cell":2},
+ result:"quantum_armor"
+}
+
+}
+
+// ===============================
+// CRAFT FUNCTION
+// ===============================
+
+function craft(item){
+
+ if(!blueprints[item]){
+  alert("No blueprint for " + item)
+  return
+ }
+
+ const recipe = blueprints[item].materials
+ let text = "Blueprint for " + item + "
+"
+
+ for(const m in recipe){
+  text += m + " x" + recipe[m] + "
+"
+ }
+
+ alert(text)
+
+}
+
+// example
+// craft("solar_panel")
+
+// =====================================
+// GLOBAL WORLD EXPANSION SYSTEMS
+// =====================================
+
+// Countries banners (sample set – expandable)
+const countryBanners=[
+"USA","Canada","Brazil","UK","Germany","France","Italy","Spain","Russia","China","Japan","Korea","India","Ethiopia","Kenya","Egypt","South Africa","Australia","Mexico","Turkey"
+]
+
+// Plants / Trees
+const plants=[
+"math_grass","algebra_flower","prime_leaf","crystal_fern","quantum_mushroom"
+]
+
+const trees=[
+"oak_tree","logic_tree","crystal_tree","binary_tree","infinity_tree"
+]
+
+// Avatar System
+let avatar={
+ hair:"short",
+ color:"blue",
+ clothes:[],
+ accessories:[]
+}
+
+function customizeAvatar(){
+ alert("Avatar customization system with infinite clothes enabled")
+}
+
+// =====================================
+// POWER UPS (Enchantments replacement)
+// =====================================
+
+const powerUps=[
+"Power Boost","Infinity Strike","Logic Flame","Prime Edge","Quantum Shock"
+]
+
+function addPowerUp(weapon){
+ const p=powerUps[Math.floor(Math.random()*powerUps.length)]
+ log("PowerUp added to "+weapon+": "+p)
+}
+
+// =====================================
+// GEM ECONOMY
+// =====================================
+
+let gems=0
+
+function addGem(){
+ gems++
+ player.coins+=100
+ log("Gem found! +100 coins")
+}
+
+// =====================================
+// AI TEACHER
+// =====================================
+
+function aiTeacher(){
+ const tips=[
+ "Tip: Prime numbers are divisible only by 1 and themselves",
+ "Tip: Area of circle = πr²",
+ "Tip: Square root is inverse of squaring"
+ ]
+ log("AI Teacher: "+tips[Math.floor(Math.random()*tips.length)])
+}
+
+// =====================================
+// BOOK SYSTEM
+// =====================================
+
+let books=[]
+
+function writeBook(){
+ let text=prompt("Write your math notes")
+ books.push(text)
+ log("Book saved")
+}
+
+// =====================================
+// MAGIC WATCH SYSTEM
+// =====================================
+
+const watches={
+ transform:"Mob Transform Watch",
+ inventory:"Inventory Watch",
+ ironman:"Iron Armor Watch"
+}
+
+function openWatch(){
+ alert("Futuristic watch interface opened")
+}
+
+function transformMob(){
+ const mob=mobs[Math.floor(Math.random()*mobs.length)]
+ log("You transformed into "+mob)
+}
+
+function ironSuit(){
+ log("Iron-Man style armor activated")
+}
+
+// =====================================
+// VEHICLE UPGRADE SYSTEM
+// =====================================
+
+let vehicleStats={
+ speed:1,
+ armor:1,
+ weapons:1
+}
+
+function upgradeVehicle(){
+ vehicleStats.speed++
+ vehicleStats.armor++
+ log("Vehicle upgraded")
+}
+
+// =====================================
+// CYCLOPS SUBMARINE
+// =====================================
+
+const cyclopsSubmarine={
+ name:"Cyclops",
+ depth:1000,
+ rooms:["control_room","engine_room","lab","storage"]
+}
+
+function enterSubmarine(){
+ log("Entering Cyclops submarine for deep ocean exploration")
+}
+
+// =====================================
+// FARM SYSTEM
+// =====================================
+
+function mathFarm(){
+ log("You harvested algebra crops")
+ player.coins+=5
+}
+
+// =====================================
+// OFFLINE / ONLINE MODE
+// =====================================
+
+let onlineMode=false
+
+function toggleOnline(){
+ onlineMode=!onlineMode
+ log("Online Mode: "+onlineMode)
+}
+
+// =====================================
+// ACADEMY UPGRADE SYSTEM
+// =====================================
+
+let academyLevel=1
+
+function upgradeAcademy(){
+ academyLevel++
+ log("Academy upgraded to level "+academyLevel)
+}
+
+// =====================================
+// VILLAGER SYSTEM
+// =====================================
+
+const villagers=[
+ {name:"Builder",job:"build"},
+ {name:"Farmer",job:"farm"},
+ {name:"Scientist",job:"research"},
+ {name:"Engineer",job:"electric"},
+ {name:"Trader",job:"trade"}
+]
+
+function tradeVillager(){
+ const v=villagers[Math.floor(Math.random()*villagers.length)]
+ log("Trading with "+v.name)
+ player.coins+=5
+}
+
+// =====================================
+// RIDEABLE MOBS
+// =====================================
+
+const rideableMobs=[
+"Shadow Horse",
+"Golden Dragon",
+"Crystal Wolf",
+"Sky Serpent"
+]
+
+function rideMob(){
+ const m=rideableMobs[Math.floor(Math.random()*rideableMobs.length)]
+ log("You are riding a "+m)
+}
+
+// =====================================
+// FLYING ISLANDS
+// =====================================
+
+function discoverFlyingIsland(){
+ log("You discovered a floating math island in the sky")
+ player.coins+=20
+}
+
+// =====================================
+// ELECTRIC TECHNOLOGY
+// =====================================
+
+const electricItems=[
+"battery","wire","solar_panel","reactor","teleporter","lab_computer"
+]
+
+function buildElectric(item){
+ if(electricItems.includes(item)){
+ log("Built electric device: "+item)
+ }
+}
+
+// =====================================
+// PLAYER ACCOUNT SYSTEM
+// =====================================
+
+let accounts={}
+
+function createAccount(){
+ const name=prompt("Create player name")
+ accounts[name]={level:1,coins:0}
+ log("Account created: "+name)
+}
+
+function searchPlayer(){
+ const name=prompt("Search player")
+ if(accounts[name]) log("Player found: "+name)
+ else log("Player not found")
+}
+
+// =====================================
+// DAILY REWARD SYSTEM
+// =====================================
+
+function dailyReward(){
+ player.coins+=50
+ log("Daily reward collected +50 coins")
+}
+
+// =====================================
+// MISSION SYSTEM
+// =====================================
+
+const missions=[
+"Solve 5 equations",
+"Defeat 3 monsters",
+"Mine 10 ores",
+"Harvest math crops",
+"Visit academy"
+]
+
+function getMission(){
+ const m=missions[Math.floor(Math.random()*missions.length)]
+ log("Mission: "+m)
+}
+
+// =====================================
+// STORY MODE
+// =====================================
+
+function storyMode(){
+ log("Story: You are a math explorer discovering the universe of numbers.")
+}
+
+// =====================================
+// LANGUAGE SYSTEM (SIMPLIFIED)
+// =====================================
+
+const languages=["English","Amharic","Spanish","French","Arabic","Chinese","Hindi","Russian"]
+
+function changeLanguage(){
+ const l=prompt("Choose language: "+languages.join(", "))
+ log("Language set to "+l)
+}
+
+// =====================================
+// FURNITURE GENERATOR (SIMULATED 10000 ITEMS)
+// =====================================
+
+function generateFurniture(){
+ const furnitureTypes=["table","chair","lab_desk","oven","sofa","bed","server_rack"]
+ let item=furnitureTypes[Math.floor(Math.random()*furnitureTypes.length)]
+ log("Furniture created: "+item)
+}
+
+// =====================================
+// EXPANDED FEATURES PACK (1-14 SYSTEMS)
+// =====================================
+
+// 1️⃣ PLANETS
+const planets=["Mercury","Venus","Earth","Mars","Jupiter","Saturn","Uranus","Neptune","Prime Planet","Algebra Planet","Geometry Planet","Infinity Planet","Logic Planet","Quantum Planet"]
+
+function travelPlanet(){
+ const p=planets[Math.floor(Math.random()*planets.length)]
+ log("Travelling to planet: "+p)
+}
+
+// 2️⃣ BOSS SCIENTISTS
+const bossScientists=[
+"Pythagoras","Euclid","Newton","Einstein","Gauss","Euler","Ramanujan","Turing","Noether","Archimedes","Descartes","Leibniz","Hypatia","Al-Khwarizmi"
+]
+
+function bossBattle(){
+ const boss=bossScientists[Math.floor(Math.random()*bossScientists.length)]
+ let win=randomMath()
+ if(win){
+  player.coins+=100
+  log("You defeated scientist boss: "+boss)
+ }else{
+  player.energy-=30
+  log(boss+" defeated you")
+ }
+}
+
+// 3️⃣ WATCH COLLECTION
+const advancedWatches=[
+"Mob Transform Watch","Inventory Watch","Iron Suit Watch","Jet Watch","Teleport Watch","Time Watch","Drone Watch","Scanner Watch","Shield Watch","Builder Watch","Miner Watch","Space Watch","Energy Watch","AI Watch"
+]
+
+function useWatch(){
+ const w=advancedWatches[Math.floor(Math.random()*advancedWatches.length)]
+ log("Activated watch: "+w)
+}
+
+// 4️⃣ VEHICLES
+const advancedVehicles=[
+"Bike","Car","Truck","Boat","Helicopter","Jet","Spaceship","Submarine","Cyclops Submarine","Battle Tank","Hover Car","Rocket Bike","Plasma Jet","Quantum Cruiser"
+]
+
+function spawnVehicle(){
+ const v=advancedVehicles[Math.floor(Math.random()*advancedVehicles.length)]
+ log("Vehicle spawned: "+v)
+}
+
+// 5️⃣ LEVEL SYSTEM
+const maxLevel=1000
+
+function gainXP(){
+ player.level++
+ if(player.level>maxLevel)player.level=maxLevel
+ log("Level Up! Level "+player.level)
+}
+
+// 6️⃣ MECHAS
+const mechas=[
+"Atlas Mecha","Titan Mecha","Quantum Mecha","Dragon Mecha","Cyclone Mecha","Nova Mecha"
+]
+
+function deployMecha(){
+ const m=mechas[Math.floor(Math.random()*mechas.length)]
+ log("Mecha deployed: "+m)
+}
+
+// 7️⃣ SPACE STATIONS
+const stations=["Alpha Station","Math Station","Nova Station","Infinity Station"]
+
+function visitStation(){
+ const s=stations[Math.floor(Math.random()*stations.length)]
+ log("Docked at space station: "+s)
+}
+
+// 8️⃣ DUNGEONS
+function exploreDungeon(){
+ log("You entered a math dungeon guarded by monsters")
+ battle()
+}
+
+// 9️⃣ ANCIENT CITIES
+function discoverCity(){
+ log("You discovered an ancient mathematical civilization")
+ player.coins+=200
+}
+
+// 🔟 GLOBAL LEADERBOARD (LOCAL SIMULATION)
+let leaderboard=[{name:"NovaPlayer",score:1000}]
+
+function showLeaderboard(){
+ log("Top Player: "+leaderboard[0].name+" Score:"+leaderboard[0].score)
+}
+
+// 1️⃣1️⃣ AI GENERATED QUESTIONS
+function infiniteQuestion(){
+ let a=Math.floor(Math.random()*100)
+ let b=Math.floor(Math.random()*100)
+ let ans=a*b
+ let input=prompt("AI Question: "+a+" * "+b)
+ if(Number(input)===ans){
+  player.coins+=20
+  log("Correct answer")
+ }else{
+  log("Wrong answer")
+ }
+}
+
+// 1️⃣2️⃣ BUILDINGS
+const buildings=[
+"College","Academy","Lab","Ancient Temple","Math Library","Research Center","Robot Factory"
+]
+
+function buildStructure(){
+ const b=buildings[Math.floor(Math.random()*buildings.length)]
+ log("Built structure: "+b)
+}
+
+// 1️⃣3️⃣ SPACE TRAVEL
+function launchRocket(){
+ log("Rocket launched to explore the universe")
+ travelPlanet()
+}
+
+// 1️⃣4️⃣ RANDOM WORLD EVENTS
+function worldEvent(){
+ const events=[
+"Meteor shower",
+"Ancient vault opened",
+"Dragon sighted",
+"Mathematical storm",
+"New island discovered"
+]
+
+const e=events[Math.floor(Math.random()*events.length)]
+log("World Event: "+e)
+}
+
+</script></body>
+</html>
