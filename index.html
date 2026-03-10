@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AI Math Universe</title>
+</head>
+
+<body style="text-align:center;font-family:Arial">
+
+<h1>🌌 AI Math Universe</h1>
+
+<p id="q"></p>
+
+<input id="a" placeholder="Answer">
+<button onclick="check()">Submit</button>
+
+<p id="r"></p>
+
+<script>
+
+let correct
+
+function newQ(){
+
+let x = Math.floor(Math.random()*10)
+let y = Math.floor(Math.random()*10)
+
+correct = x + y
+
+document.getElementById("q").innerText =
+x + " + " + y
+
+}
+
+function check(){
+
+let user = document.getElementById("a").value
+
+if(user == correct){
+document.getElementById("r").innerText="✅ Correct"
+}else{
+document.getElementById("r").innerText="❌ Answer: "+correct
+}
+
+newQ()
+
+}
+
+newQ()
+
+</script>
+
+</body>
+</html>
