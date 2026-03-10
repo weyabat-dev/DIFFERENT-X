@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AI Math Universe V30</title>
+
+<style>
+
+body{
+background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+color:white;
+font-family:Arial;
+text-align:center;
+}
+
+.container{
+margin-top:40px;
+}
+
+select,button{
+padding:10px;
+margin:10px;
+font-size:16px;
+border-radius:10px;
+border:none;
+}
+
+button{
+background:#00c3ff;
+color:white;
+cursor:pointer;
+}
+
+button:hover{
+background:#0099cc;
+}
+
+.question{
+font-size:24px;
+margin:20px;
+}
+
+input{
+padding:10px;
+font-size:18px;
+border-radius:10px;
+border:none;
+}
+
+.result{
+margin-top:20px;
+font-size:20px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>🌌 AI Math Universe V30</h1>
+
+<div class="container">
+
+<h3>Choose Grade</h3>
+<select id="grade">
+<option>Grade 1</option>
+<option>Grade 2</option>
+<option>Grade 3</option>
+<option>Grade 4</option>
+<option>Grade 5</option>
+<option>Grade 6</option>
+<option>Grade 7</option>
+<option>Grade 8</option>
+<option>Grade 9</option>
+<option>Grade 10</option>
+<option>Grade 11</option>
+<option>Grade 12</option>
+</select>
+
+<h3>Choose Topic</h3>
+<select id="topic">
+<option>Addition</option>
+<option>Subtraction</option>
+<option>Multiplication</option>
+<option>Division</option>
+<option>Algebra</option>
+</select>
+
+<h3>Difficulty</h3>
+<select id="difficulty">
+<option>Easy</option>
+<option>Medium</option>
+<option>Hard</option>
+</select>
+
+<br>
+
+<button onclick="generateQuestion()">Generate Question</button>
+
+<div class="question" id="question"></div>
+
+<input id="answer" placeholder="Your answer">
+
+<br>
+
+<button onclick="checkAnswer()">Submit</button>
+
+<div class="result" id="result"></div>
+
+</div>
+
+<script>
+
+let currentAnswer=0;
+
+function generateQuestion(){
+
+let topic=document.getElementById("topic").value;
+let difficulty=document.getElementById("difficulty").value;
+
+let max=10;
+
+if(difficulty==="Medium") max=50;
+if(difficulty==="Hard") max=100;
+
+let a=Math.floor(Math.random()*max);
+let b=Math.floor(Math.random()*max);
+
+let question="";
+
+if(topic==="Addition"){
+question=`${a} + ${b}`;
+currentAnswer=a+b;
+}
+
+if(topic==="Subtraction"){
+question=`${a} - ${b}`;
+currentAnswer=a-b;
+}
+
+if(topic==="Multiplication"){
+question=`${a} × ${b}`;
+currentAnswer=a*b;
+}
+
+if(topic==="Division"){
+b=Math.floor(Math.random()*9)+1;
+a=b*(Math.floor(Math.random()*max));
+question=`${a} ÷ ${b}`;
+currentAnswer=a/b;
+}
+
+if(topic==="Algebra"){
+let x=Math.floor(Math.random()*10)+1;
+let c=Math.floor(Math.random()*10)+1;
+let result=x+c;
+
+question=`Solve: x + ${c} = ${result}`;
+currentAnswer=x;
+}
+
+document.getElementById("question").innerText=question;
+
+}
+
+function checkAnswer(){
+
+let userAnswer=document.getElementById("answer").value;
+
+if(userAnswer==currentAnswer){
+document.getElementById("result").innerText="✅ Correct!";
+}else{
+document.getElementById("result").innerText="❌ Wrong. Correct answer: "+currentAnswer;
+}
+
+}
+
+</script>
+
+</body>
+</html>
