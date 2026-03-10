@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AI Math Universe V500</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.container{
+width:400px;
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(12px);
+padding:30px;
+border-radius:20px;
+box-shadow:0 0 30px rgba(0,0,0,0.6);
+text-align:center;
+}
+
+h1{
+margin-top:0;
+}
+
+select,input,button{
+width:100%;
+margin-top:10px;
+padding:12px;
+border-radius:10px;
+border:none;
+font-size:16px;
+}
+
+button{
+background:linear-gradient(90deg,#00c6ff,#0072ff);
+color:white;
+cursor:pointer;
+}
+
+button:hover{
+transform:scale(1.04);
+}
+
+.question{
+font-size:30px;
+margin-top:20px;
+}
+
+.stats{
+margin-top:10px;
+}
+
+.timer{
+font-size:18px;
+margin-top:5px;
+color:#00eaff;
+}
+
+.badge{
+margin-top:10px;
+color:#ffd700;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🌌 AI Math Universe V500</h1>
+
+<select id="grade" onchange="updateTopics()">
+<option value="1">Grade 1</option>
+<option value="2">Grade 2</option>
+<option value="3">Grade 3</option>
+<option value="4">Grade 4</option>
+<option value="5">Grade 5</option>
+<option value="6">Grade 6</option>
+<option value="7">Grade 7</option>
+<option value="8">Grade 8</option>
+</select>
+
+<select id="topic"></select>
+
+<select id="difficulty">
+<option>Easy</option>
+<option>Medium</option>
+<option>Hard</option>
+</select>
+
+<div class="question" id="question"></div>
+
+<input id="answer" placeholder="Enter answer">
+
+<button onclick="submitAnswer()">Submit</button>
+
+<div class="timer" id="timer">Time: 20</div>
+
+<div class="stats" id="score">Score: 0</div>
+<div class="stats" id="xp">XP: 0</div>
+<div class="stats" id="level">Level: 1</div>
+
+<div class="badge" id="badge"></div>
+
+</div>
+
+<script>
+
+let topics={
+1:["Addition","Subtraction"],
+2:["Addition","Subtraction","Multiplication"],
+3:["Multiplication","Division"],
+4:["Fractions","Decimals","Area"],
+5:["Fractions","Decimals","Percentages","Area"],
+6:["Ratios","Integers","Algebra"],
+7:["Algebra","Linear Equations","Probability"],
+8:["Linear Equations","Geometry","Statistics"]
+};
+
+let correct;
+let score=0;
+let xp=0;
+let level=1;
+let time=20;
+let timer;
+
+function updateTopics(){
+
+let grade=document.getElementById("grade").value;
+let topicSelect=document.getElementById("topic");
+
+topicSelect.innerHTML="";
+
+topics[grade].forEach(t=>{
+let option=document.createElement("option");
+option.text=t;
+topicSelect.add(option);
+});
+
+generate();
+
+}
+
+function random(max){
+return Math.floor(Math.random()*max);
+}
+
+function generate(){
+
+let topic=document.getElementById("topic").value;
+let difficulty=document.getElementById("difficulty").value;
+
+let max=20;
+
+if(difficulty==="Medium") max=50;
+if(difficulty==="Hard") max=100;
+
+let a=random(max);
+let b=random(max);
+
+let question="";
+
+if(topic==="Addition"){
+correct=a+b;
+question=`${a} + ${b}`;
+}
+
+else if(topic==="Subtraction"){
+correct=a-b;
+question=`${a} - ${b}`;
+}
+
+else if(topic==="Multiplication"){
+correct=a*b;
+question=`${a} × ${b}`;
+}
+
+else if(topic==="Division"){
+b=random(9)+1;
+a=b*random(10);
+correct=a/b;
+question=`${a} ÷ ${b}`;
+}
+
+else if(topic==="Fractions"){
+correct=0.75;
+question="1/2 + 1/4";
+}
+
+else if(topic==="Percentages"){
+correct=20;
+question="25% of 80";
+}
+
+else if(topic==="Linear Equations"){
+let x=random(10)+1;
+let c=random(10);
+let result=x+c;
+correct=x;
+question=`x + ${c} = ${result}`;
+}
+
+document.getElementById("question").innerText=question;
+document.getElementById("answer").value="";
+
+resetTimer();
+
+}
+
+function submitAnswer(){
+
+let user=document.getElementById("answer").value;
+
+if(user==correct){
+
+score++;
+xp+=10;
+
+if(xp>=level*100){
+level++;
+document.getElementById("badge").innerText="🏆 Level Up!";
+}
+
+}else{
+
+document.getElementById("badge").innerText="❌ Correct: "+correct;
+
+}
+
+updateStats();
+
+setTimeout(generate,1000);
+
+}
+
+function updateStats(){
+
+document.getElementById("score").innerText="Score: "+score;
+document.getElementById("xp").innerText="XP: "+xp;
+document.getElementById("level").innerText="Level: "+level;
+
+}
+
+function resetTimer(){
+
+clearInterval(timer);
+
+time=20;
+
+document.getElementById("timer").innerText="Time: "+time;
+
+timer=setInterval(()=>{
+
+time--;
+
+document.getElementById("timer").innerText="Time: "+time;
+
+if(time<=0){
+
+clearInterval(timer);
+
+generate();
+
+}
+
+},1000);
+
+}
+
+updateTopics();
+
+</script>
+
+</body>
+</html>
